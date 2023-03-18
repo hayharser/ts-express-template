@@ -1,0 +1,46 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "My User Project CRUD",
+    "description": "My User Project Application API",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Dev server"
+    }
+  ],
+  "paths": {
+  },
+  "components": {
+    "schemas": {
+      "user": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "auto-get mongo id"
+          },
+          "email": {
+            "type": "string",
+            "description": "user email"
+          }
+        },
+        "example": {
+          "id": "fdwdfwd",
+          "email": "har`2ds.com"
+        }
+      }
+    }
+  },
+  "tags": [
+  ]
+}

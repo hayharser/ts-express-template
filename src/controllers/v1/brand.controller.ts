@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, RequestHandler, Response } from 'express';
-import { BaseController } from '../i-controller';
+import { BaseController } from '../controller.interface';
 
 export class BrandController extends BaseController {
     path: string = '/brands';
@@ -16,6 +16,21 @@ export class BrandController extends BaseController {
         this.router.get('/', this.getAll);
     }
 
+    /**
+     * @openapi
+     * /users:
+     *   get:
+     *     summary: fetch all
+     *     responses:
+     *       200:
+     *         description: ok
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/user'
+     */
     getAll: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
         res.status(200).json({ a: 23 });
     };
