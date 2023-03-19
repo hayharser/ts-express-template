@@ -1,16 +1,18 @@
-import { serverConfig } from './config'; // this should be first
+import './config/dotenv'; // this should be first
 import http from 'http';
 import debug from 'debug';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 import { App } from './app';
+import { MongoDbProvider } from './providers/mongo-db.provider';
 
 import { BrandController } from './controllers/v1/brand.controller';
 import { AuthController } from './controllers/v1/auth.controller';
-import { logger } from './providers/logger';
+import { mongoConfigs } from './config/mongo.configs';
+import { serverConfig } from './config/server.configs';
 
-const expressLog = debug('app:server');
+const appDebugger = debug('app:server');
 
 const app = new App([new BrandController(), new AuthController()]);
 
@@ -23,7 +25,17 @@ const swaggerOptions = {
 };
 app.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
 
-http.createServer(app.app).listen(serverConfig.port, () => {
-    expressLog(`server started at port: ${serverConfig.port}`);
-    logger.info('hello', { message: 'world' });
-});
+const mongoDb = new MongoDbProvider(mongoConfigs);
+
+// connect to mongo
+mongoDb
+    .connect()
+    .then(() => {
+        appDebugger('connected to mongodb');
+    })
+    .then(() => {
+        // create http server
+        http.createServer(app.app).listen(serverConfig.port, () => {
+            appDebugger(`server started at port: ${serverConfig.port}`);
+        });
+    });

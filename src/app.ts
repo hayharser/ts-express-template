@@ -3,11 +3,13 @@ import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
-import { corsOptions, morganFormat } from './config';
 
 import { ControllerInterface } from './controllers/controller.interface';
 import { errorHandlerMiddleware } from './middeware/error-handler.middleware';
+
 import { logger } from './providers/logger';
+import { corsOptions } from './config/cors.config';
+import { morganFormat } from './config/morgan.configs';
 
 export class App {
     public app: express.Application;
