@@ -35,7 +35,8 @@ export const logger = createLogger({
             zippedArchive: true
         }),
         new transports.File({ filename: './logs/http.log', level: 'http', format: filterOnly('http') })
-    ]
+    ],
+    exceptionHandlers: [new transports.File({ filename: './logs/exceptions.log' })]
 });
 
 //
@@ -46,6 +47,7 @@ if (process.env.NODE_ENV !== 'production') {
     logger.add(
         new transports.Console({
             level: 'silly',
+            handleExceptions: true,
             format: combine(
                 timestamp(),
                 colorize(),

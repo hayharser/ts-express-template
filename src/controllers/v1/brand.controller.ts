@@ -1,15 +1,13 @@
-import express, { NextFunction, Request, RequestHandler, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { BaseController } from '../controller.interface';
+import { logger } from '../../providers/logger';
 
 export class BrandController extends BaseController {
-    path: string = '/brands';
-    router: express.Router;
+    path = '/brands';
 
     constructor(path?: string) {
         super();
         path && (this.path = path);
-        this.router = express.Router();
-        this.initRouters();
     }
 
     initRouters(): void {
@@ -32,9 +30,9 @@ export class BrandController extends BaseController {
      *               items:
      *                 $ref: '#/components/schemas/user'
      */
-    getAll: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
+    getAll(req: Request, res: Response, next: NextFunction) {
         res.status(200).json({ a: 23 });
-    };
+    }
 
     /**
      * @openapi

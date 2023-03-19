@@ -8,10 +8,15 @@ export interface ControllerInterface {
 
 export abstract class BaseController implements ControllerInterface {
     abstract path: string;
-    abstract router: express.Router;
+    router!: express.Router;
 
     constructor() {
+        this.createRouter();
+    }
 
+    protected createRouter() {
+        this.router = express.Router();
+        this.initRouters();
     }
 
     abstract initRouters(): void;

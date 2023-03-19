@@ -43,6 +43,9 @@
   },
   "tags": [
     {
+      "name": "Auth"
+    },
+    {
       "name": "Users"
     }
   ]
