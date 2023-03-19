@@ -7,6 +7,7 @@ import { corsOptions, morganFormat } from './config';
 
 import { ControllerInterface } from './controllers/controller.interface';
 import { errorHandlerMiddleware } from './middeware/error-handler.middleware';
+import { logger } from './providers/logger';
 
 export class App {
     public app: express.Application;
@@ -27,7 +28,23 @@ export class App {
         this.app.use(bodyParser.json());
         this.app.use('/api/v1', helmet());
         this.app.use(cors(corsOptions));
-        this.app.use(morgan(morganFormat));
+
+        morgan.token('body', (req: Request) => {
+            if (['post', 'put', 'patch'].includes(req.method.toLowerCase())) {
+                return JSON.stringify(req.body);
+            }
+            return undefined;
+        });
+
+        this.app.use(
+            morgan(morganFormat, {
+                stream: {
+                    write(str: string) {
+                        logger.http(str, { label: 'http' });
+                    }
+                }
+            })
+        );
     }
 
     private initializeControllers(controllers: ControllerInterface[]) {
