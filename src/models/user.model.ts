@@ -15,8 +15,8 @@ export interface IUser {
     lastName: string;
     email: string;
     username: string;
+    phoneNumber: string;
     password?: string;
-    phoneNo: string;
     profileUrl: string;
     bio: string;
     deviceInfo: IUserDevice[];
@@ -37,7 +37,7 @@ const UserSchema = new Schema<IUser, UserModelType, IUserMethods>(
         lastName: { type: String, trim: true, default: '' },
         email: { type: String, trim: true, required: false, index: true },
         username: { type: String, trim: true, required: false, index: true },
-        phoneNo: { type: String, trim: true, required: true, index: true },
+        phoneNumber: { type: String, trim: true, required: true, index: true },
         profileUrl: { type: String, trim: true, default: '' },
         bio: { type: String, trim: true, default: '' },
 
