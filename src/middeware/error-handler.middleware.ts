@@ -1,10 +1,11 @@
-import { ErrorRequestHandler, Request, Response } from 'express';
+import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import { HttpException } from '../exceptions/http.exception';
 
 export const errorHandlerMiddleware: ErrorRequestHandler = (
     error: HttpException,
     request: Request,
-    response: Response
+    response: Response,
+    next: NextFunction
 ) => {
     const status = error.status || 500;
     const message = error.message || 'Something went wrong';

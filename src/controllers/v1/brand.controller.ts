@@ -1,17 +1,15 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
+import passport from 'passport';
+
 import { BaseController } from '../controller.interface';
-import { logger } from '../../providers/logger';
 
 export class BrandController extends BaseController {
-    path = '/brands';
-
-    constructor(path?: string) {
-        super();
-        path && (this.path = path);
+    constructor() {
+        super('/brands');
     }
 
     initRouters(): void {
-        this.router.get('/', this.getAll);
+        this.router.get('/', passport.authenticate('JWT'), this.getAll);
     }
 
     /**
@@ -56,7 +54,11 @@ export class BrandController extends BaseController {
      *                 $ref: '#/components/schemas/user'
      *
      */
-    getbyId: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
+    getbyId: RequestHandler = (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
         res.status(200).json({ a: 23 });
     };
 }

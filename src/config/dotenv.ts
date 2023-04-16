@@ -6,6 +6,11 @@ if (process.env.NODE_ENV !== 'production') {
     dotenv.config();
 }
 
-cleanEnv(process.env, {
-    NODE_ENV: str({ devDefault: 'dev' })
+const env = cleanEnv(process.env, {
+    NODE_ENV: str({
+        default: 'development',
+        choices: ['development', 'test', 'production', 'staging']
+    })
 });
+
+Object.assign(process.env, env);

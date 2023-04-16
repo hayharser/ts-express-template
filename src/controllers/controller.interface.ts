@@ -1,4 +1,5 @@
 import express from 'express';
+import { Service } from 'typedi';
 
 export interface ControllerInterface {
     path: string;
@@ -6,11 +7,13 @@ export interface ControllerInterface {
     initRouters: () => void;
 }
 
+@Service()
 export abstract class BaseController implements ControllerInterface {
-    abstract path: string;
+    path: string;
     router!: express.Router;
 
-    constructor() {
+    constructor(path: string) {
+        this.path = path;
         this.createRouter();
     }
 
