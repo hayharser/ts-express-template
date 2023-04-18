@@ -1,24 +1,31 @@
 import { ExtractJwt, Strategy as JwtStrategy, VerifiedCallback } from 'passport-jwt';
 
+import { jwtConfigs } from '../../config/jwt.configs';
+import Container from 'typedi';
+import { UserService } from '../../services/user.service';
+
 interface JwtPayload {
     id: string;
 }
 
+const userService = Container.get<UserService>(UserService);
 export const PassportJwtStrategy = new JwtStrategy(
     {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: process.env.JWT_SECRET
+        secretOrKey: jwtConfigs.jwtSecret
     },
-    (jwtPayload: JwtPayload, done: VerifiedCallback) => {
+    async (jwtPayload: JwtPayload, done: VerifiedCallback) => {
         const id = jwtPayload.id;
-        // db.get('SELECT * FROM users WHERE username = ?', [username], function(err, row) {
-        //     if (err) {
-        //         return cb(err);
-        //     }
-        //     if (!row) {
-        //         return cb(null, false, { message: 'Incorrect username or password.' });
-        //     }
-        // });
-        done(null, { id }, { name: 'harut' });
+
+        try {
+            const userDoc = await userService.getUserById(id);
+            if (userDoc) {
+                done(null, userDoc.toJSON());
+            } else {
+                done(null, false);
+            }
+        } catch (error) {
+            done(error);
+        }
     }
 );

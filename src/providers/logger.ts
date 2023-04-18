@@ -1,4 +1,5 @@
-import { createLogger, format, transports } from 'winston';
+import Container from 'typedi';
+import { createLogger, format, Logger as WLogger, transports } from 'winston';
 import 'winston-daily-rotate-file';
 
 const LEVEL = Symbol.for('level');
@@ -34,7 +35,11 @@ export const logger = createLogger({
             datePattern: 'YYYY-MM-DD',
             zippedArchive: true
         }),
-        new transports.File({ filename: './logs/http.log', level: 'http', format: filterOnly('http') })
+        new transports.File({
+            filename: './logs/http.log',
+            level: 'http',
+            format: filterOnly('http')
+        })
     ],
     exceptionHandlers: [new transports.File({ filename: './logs/exceptions.log' })]
 });
@@ -58,3 +63,16 @@ if (process.env.NODE_ENV !== 'production') {
         })
     );
 }
+
+export function Logger() {
+    return function (object: any, propertyName: string, index?: number) {
+        Container.registerHandler({
+            object,
+            propertyName,
+            index,
+            value: (containerInstance) => logger
+        });
+    };
+}
+
+export type ILogger = WLogger;

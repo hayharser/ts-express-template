@@ -54,11 +54,7 @@ export class BrandController extends BaseController {
      *                 $ref: '#/components/schemas/user'
      *
      */
-    getbyId: RequestHandler = (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => {
+    getbyId: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
         res.status(200).json({ a: 23 });
     };
 }

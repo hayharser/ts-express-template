@@ -1,4 +1,4 @@
-import { Model, model, Schema, Types, Document } from 'mongoose';
+import { Model, model, Schema, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 export enum FederatedAccountProviders {
@@ -19,11 +19,13 @@ export interface FederatedAccount {
 }
 
 export interface User {
+    _id?: Types.ObjectId;
     firstName: string;
     lastName: string;
     email: string;
     username?: string;
     phoneNumber?: string;
+    salt?: string;
     password?: string;
     profileUrl?: string;
     bio?: string;
@@ -54,6 +56,9 @@ const UserSchema = new Schema<User, UserModelType, UserMethods>(
         username: { type: String, trim: true, required: false, index: true },
         phoneNumber: { type: String, trim: true, required: true, index: true },
 
+        salt: { type: String, trim: false },
+        password: { type: String, trim: false },
+
         federatedAccounts: [
             {
                 _id: false,
@@ -63,11 +68,11 @@ const UserSchema = new Schema<User, UserModelType, UserMethods>(
                 refreshToken: { type: String, required: false }
             }
         ],
+        devices: [userDeviceSchema]
         // token: { type: String, default: '' },
         // reset_password_token: { type: String, default: '' },
         // reset_password_expires: { type: Date, default: null },
         //
-        password: { type: String, trim: false },
         // old_password: [{ type: String, trim: true }],
         // otp_code: { type: Number, trim: true, default: 0, max: 999999 },
         // signup_step: { type: Number, trim: true, default: 1, min: 1, max: 4 }, // 1: mobile no, 2: otp, 3: account info, 4: complete
@@ -81,7 +86,6 @@ const UserSchema = new Schema<User, UserModelType, UserMethods>(
         // is_registered: { type: Boolean, default: 0, index: true },
         // is_suspended: { type: Boolean, default: 0 },
         // is_account_closed: { type: Boolean, default: 0 },
-        devices: [userDeviceSchema]
     },
     {
         timestamps: true
@@ -92,17 +96,6 @@ UserSchema.method('fullName', function fullName(): string {
     return this.firstName + ' ' + this.lastName;
 });
 
-UserSchema.pre('save', async function (next) {
-    // only hash the password if it has been modified (or is new)
-    if (!this.isModified('password') || !this.password) {
-        return next();
-    }
-    const salt = await generateSalt();
-    const hashedPassword = await hashPassword(this.password, salt);
-    this.password = hashedPassword;
-    next();
-});
-
 UserSchema.methods.comparePassword = async function (candidatePassword: string) {
     const isMatch = await bcrypt.compare(candidatePassword, this.password);
     return isMatch;
@@ -110,28 +103,3 @@ UserSchema.methods.comparePassword = async function (candidatePassword: string) 
 
 // UserSchema.plugin(aggregatePaginate);
 export const UserModel = model<User, UserModelType>('User', UserSchema);
-
-function generateSalt(): Promise<string> {
-    return new Promise((resolve, reject) => {
-        bcrypt.genSalt(10, (err, salt) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(salt);
-            }
-        });
-    });
-}
-
-function hashPassword(password: string, salt: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        bcrypt.hash(password, salt, (err, hash) => {
-            if (err) {
-                reject(err);
-            }
-
-            // override the cleartext password with the hashed one
-            resolve(hash);
-        });
-    });
-}

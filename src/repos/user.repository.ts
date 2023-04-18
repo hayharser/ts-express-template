@@ -9,23 +9,27 @@ export class UserRepository {
         logger.info('UserRepository->constructor');
     }
 
-    async findByFacebookId(facebookId: string) {
-        return (
-            await UserModel.findOne({
-                'federatedAccounts.id': facebookId,
-                'federatedAccounts.provider': FederatedAccountProviders.FACEBOOK
-            })
-        )?.toJSON();
+    async findById(id: string) {
+        return await UserModel.findOne({ _id: id }).exec();
     }
 
     async findByEmail(email: string) {
-        return (await UserModel.findOne({ email: email }).exec())?.toJSON();
+        return await UserModel.findOne({ email: email }).exec();
     }
 
-    async createUser(user: User) {
-        const userDoc = await UserModel.create(user);
-        await userDoc.save();
-        return userDoc;
+    async findUserByUsername(username: string) {
+        return await UserModel.findOne({ username: username }).exec();
+    }
+
+    async findByFacebookId(facebookId: string) {
+        return await UserModel.findOne({
+            'federatedAccounts.id': facebookId,
+            'federatedAccounts.provider': FederatedAccountProviders.FACEBOOK
+        }).exec();
+    }
+
+    createUser(user: User) {
+        return UserModel.create(user);
     }
 
     async updateUser(_id: Types.ObjectId, user: User) {

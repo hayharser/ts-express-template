@@ -1,14 +1,17 @@
 import { Inject, Service } from 'typedi';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
 import passport from 'passport';
 
 import { BaseController } from '../controller.interface';
 import { validateBody } from '../../middeware/request-schema-validator.middleware';
-import { logger } from '../../providers/logger';
 import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
 
 const SignUpBodySchema = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    phoneNumber: z.string(),
     username: z.string(),
     email: z.string().email('wrong email provided'),
     password: z.string().min(8, 'password min length is 8')
@@ -35,6 +38,8 @@ export class AuthController extends BaseController {
             passport.authenticate('local', { session: false }),
             this.signin.bind(this)
         );
+        // register
+        this.router.post('/auth/signun', validateBody(SignUpBodySchema), this.signup.bind(this));
 
         // FB sign in
         this.router.post(
@@ -75,14 +80,32 @@ export class AuthController extends BaseController {
         this.router.get('/logout', this.logout.bind(this));
     }
 
-    signup(req: Request, res: Response) {
-        logger.info('some message', req.user);
-        res.status(201).json({ ...req.body });
+    //----------------- ACTIONS
+
+    async signup(req: Request, res: Response, next: NextFunction) {
+        const userRequestData = req.body as z.infer<typeof SignUpBodySchema>;
+        try {
+            const userData = await this.userService.registerUser({
+                ...userRequestData
+            });
+            // generate JWT access token
+            const jwtToken = await this.userService.generateJwtToken(userData);
+
+            res.status(201)
+                .setHeader('Token', jwtToken)
+                .json({ status: 'ok', data: { ...userData } });
+        } catch (error) {
+            next(error);
+        }
     }
 
-    signin(req: Request, res: Response) {
-        logger.info('some message', req.user);
-        res.status(201).json({ ...req.body });
+    async signin(req: Request, res: Response) {
+        const user = req.user as User;
+        const jwtToken = await this.userService.generateJwtToken(user);
+
+        res.status(201)
+            .setHeader('Token', jwtToken)
+            .json({ ...req.body });
     }
 
     fbSignIn(req: Request, res: Response) {

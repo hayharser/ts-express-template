@@ -58,6 +58,6 @@ Promise.all([redisProvider.connect(), mongoDbProvider.connect()])
                 app.app
             )
             .listen(443, () => {
-                console.log('serever is runing at port 443');
+                appDebugger('server started at port 443');
             });
     });
