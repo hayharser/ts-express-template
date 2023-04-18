@@ -25,7 +25,6 @@ export interface User {
     email: string;
     username?: string;
     phoneNumber?: string;
-    salt?: string;
     password?: string;
     profileUrl?: string;
     bio?: string;
@@ -37,7 +36,7 @@ interface UserMethods {
     toApiModel(): UserApiModel;
 }
 
-export type UserModelType = Model<User, {}, UserMethods>;
+export type UserModelType = Model<User, object, UserMethods>;
 
 const userDeviceSchema = new Schema<UserDevice>(
     {
@@ -56,7 +55,6 @@ const UserSchema = new Schema<User, UserModelType, UserMethods>(
         username: { type: String, trim: true, required: false, index: true },
         phoneNumber: { type: String, trim: true, required: true, index: true },
 
-        salt: { type: String, trim: false },
         password: { type: String, trim: false },
 
         federatedAccounts: [
@@ -92,7 +90,7 @@ const UserSchema = new Schema<User, UserModelType, UserMethods>(
     }
 );
 
-UserSchema.method('toApiModel', function toApiModel(): UserApiModel {
+UserSchema.methods.toApiModel = function toApiModel(): UserApiModel {
     return {
         id: this._id.toString(),
         firstName: this.firstName,
@@ -100,7 +98,7 @@ UserSchema.method('toApiModel', function toApiModel(): UserApiModel {
         username: this.username,
         email: this.email
     };
-});
+};
 
 // UserSchema.plugin(aggregatePaginate);
 export const UserModel = model<User, UserModelType>('User', UserSchema);

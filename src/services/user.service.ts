@@ -32,7 +32,7 @@ export class UserService {
 
     async getUserByEmailAndPassword(email: string, password: string) {
         const userDoc = await this.userRepo.findByEmail(email);
-        if (!userDoc || !userDoc.password || !userDoc.salt) {
+        if (!userDoc || !userDoc.password) {
             return null;
         }
 
@@ -45,7 +45,7 @@ export class UserService {
 
     async getUserByUsernameAndPassword(username: string, password: string) {
         const userDoc = await this.userRepo.findUserByUsername(username);
-        if (!userDoc || !userDoc.password || !userDoc.salt) {
+        if (!userDoc || !userDoc.password) {
             return null;
         }
 
@@ -81,7 +81,6 @@ export class UserService {
 
         const salt = await this.generateSalt();
         user.password = await this.hashPassword(userModel.password, salt);
-        user.salt = salt;
 
         userDoc = await this.userRepo.createUser(user);
         return userDoc.toApiModel();

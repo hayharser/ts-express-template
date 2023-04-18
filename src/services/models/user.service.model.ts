@@ -8,7 +8,6 @@ export interface UserServiceModel {
     username?: string;
     password?: string;
     phoneNumber?: string;
-    salt?: string;
     provider?: {
         id: string;
         accessToken: string;
