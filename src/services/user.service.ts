@@ -19,15 +19,41 @@ export class UserService {
     }
 
     async getUserById(id: string) {
-        return await this.userRepo.findById(id);
+        return (await this.userRepo.findById(id))?.toApiModel();
     }
 
     async getUserByEmail(email: string) {
-        return await this.userRepo.findByEmail(email);
+        return (await this.userRepo.findByEmail(email))?.toApiModel();
     }
 
     async getUserByUsername(username: string) {
-        return await this.userRepo.findUserByUsername(username);
+        return (await this.userRepo.findUserByUsername(username))?.toApiModel();
+    }
+
+    async getUserByEmailAndPassword(email: string, password: string) {
+        const userDoc = await this.userRepo.findByEmail(email);
+        if (!userDoc || !userDoc.password || !userDoc.salt) {
+            return null;
+        }
+
+        const match = await bcrypt.compare(password, userDoc.password);
+        if (!match) {
+            return null;
+        }
+        return userDoc?.toApiModel();
+    }
+
+    async getUserByUsernameAndPassword(username: string, password: string) {
+        const userDoc = await this.userRepo.findUserByUsername(username);
+        if (!userDoc || !userDoc.password || !userDoc.salt) {
+            return null;
+        }
+
+        const match = await bcrypt.compare(password, userDoc.password);
+        if (!match) {
+            return null;
+        }
+        return userDoc?.toApiModel();
     }
 
     /**
@@ -58,7 +84,7 @@ export class UserService {
         user.salt = salt;
 
         userDoc = await this.userRepo.createUser(user);
-        return userDoc.toJSON();
+        return userDoc.toApiModel();
     }
 
     async generateJwtToken(user: UserServiceModel) {
@@ -79,7 +105,7 @@ export class UserService {
         }
         let userDoc = await this.userRepo.findByFacebookId(provider.id);
         if (userDoc) {
-            return userDoc.toJSON();
+            return userDoc.toApiModel();
         }
         // find user by email and attach new provider
         userDoc = await this.userRepo.findByEmail(fbUserData.email);
@@ -92,7 +118,7 @@ export class UserService {
         };
         if (userDoc) {
             userDoc.federatedAccounts.push(facebookProvider);
-            return (await userDoc.save()).toJSON();
+            return (await userDoc.save()).toApiModel();
         }
         userDoc = await this.userRepo.createUser({
             firstName: fbUserData.firstName,
@@ -101,7 +127,7 @@ export class UserService {
             phoneNumber: '-',
             federatedAccounts: [facebookProvider]
         });
-        return userDoc.toJSON();
+        return userDoc.toApiModel();
     }
 
     generateSalt(): Promise<string> {

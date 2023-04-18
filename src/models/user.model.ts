@@ -1,5 +1,5 @@
 import { Model, model, Schema, Types } from 'mongoose';
-import * as bcrypt from 'bcrypt';
+import { UserApiModel } from './api/user.api.model';
 
 export enum FederatedAccountProviders {
     FACEBOOK = 'facebook',
@@ -34,10 +34,10 @@ export interface User {
 }
 
 interface UserMethods {
-    fullName(): string;
+    toApiModel(): UserApiModel;
 }
 
-export type UserModelType = Model<User, object, UserMethods>;
+export type UserModelType = Model<User, {}, UserMethods>;
 
 const userDeviceSchema = new Schema<UserDevice>(
     {
@@ -92,14 +92,15 @@ const UserSchema = new Schema<User, UserModelType, UserMethods>(
     }
 );
 
-UserSchema.method('fullName', function fullName(): string {
-    return this.firstName + ' ' + this.lastName;
+UserSchema.method('toApiModel', function toApiModel(): UserApiModel {
+    return {
+        id: this._id.toString(),
+        firstName: this.firstName,
+        lastName: this.lastName,
+        username: this.username,
+        email: this.email
+    };
 });
-
-UserSchema.methods.comparePassword = async function (candidatePassword: string) {
-    const isMatch = await bcrypt.compare(candidatePassword, this.password);
-    return isMatch;
-};
 
 // UserSchema.plugin(aggregatePaginate);
 export const UserModel = model<User, UserModelType>('User', UserSchema);

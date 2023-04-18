@@ -6,7 +6,7 @@ import passport from 'passport';
 import { BaseController } from '../controller.interface';
 import { validateBody } from '../../middeware/request-schema-validator.middleware';
 import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
+import { UserApiModel } from '../../models/api/user.api.model';
 
 const SignUpBodySchema = z.object({
     firstName: z.string(),
@@ -100,12 +100,12 @@ export class AuthController extends BaseController {
     }
 
     async signin(req: Request, res: Response) {
-        const user = req.user as User;
+        const user = req.user as UserApiModel;
         const jwtToken = await this.userService.generateJwtToken(user);
 
         res.status(201)
             .setHeader('Token', jwtToken)
-            .json({ ...req.body });
+            .json({ ...req.user });
     }
 
     fbSignIn(req: Request, res: Response) {

@@ -18,9 +18,9 @@ export const PassportJwtStrategy = new JwtStrategy(
         const id = jwtPayload.id;
 
         try {
-            const userDoc = await userService.getUserById(id);
-            if (userDoc) {
-                done(null, userDoc.toJSON());
+            const userApiModel = await userService.getUserById(id);
+            if (userApiModel) {
+                done(null, userApiModel);
             } else {
                 done(null, false);
             }

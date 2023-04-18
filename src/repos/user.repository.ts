@@ -9,8 +9,8 @@ export class UserRepository {
         logger.info('UserRepository->constructor');
     }
 
-    async findById(id: string) {
-        return await UserModel.findOne({ _id: id }).exec();
+    findById(id: string) {
+        return UserModel.findOne({ _id: id }).exec();
     }
 
     async findByEmail(email: string) {
