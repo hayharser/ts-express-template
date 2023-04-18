@@ -1,7 +1,5 @@
-import { Types } from 'mongoose';
-
 export interface UserServiceModel {
-    _id?: Types.ObjectId;
+    id?: string;
     firstName: string;
     lastName: string;
     email: string;

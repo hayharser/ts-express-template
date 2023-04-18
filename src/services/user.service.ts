@@ -1,6 +1,7 @@
 import { Inject, Service } from 'typedi';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import debug from 'debug';
 
 import { UserRepository } from '../repos/user.repository';
 import { UserServiceModel } from './models/user.service.model';
@@ -9,13 +10,15 @@ import { AppException } from '../exceptions/app.exception';
 import { jwtConfigs } from '../config/jwt.configs';
 import { User } from '../models/user.model';
 
+const appDebugger = debug('app:service');
+
 @Service()
 export class UserService {
     constructor(
         @Inject() private readonly userRepo: UserRepository,
         @Logger() private readonly logger: ILogger
     ) {
-        this.logger.info('user service constructor');
+        appDebugger('UserService->constructor');
     }
 
     async getUserById(id: string) {
@@ -38,6 +41,7 @@ export class UserService {
 
         const match = await bcrypt.compare(password, userDoc.password);
         if (!match) {
+            this.logger.debug('passwords do not match');
             return null;
         }
         return userDoc?.toApiModel();
@@ -87,7 +91,10 @@ export class UserService {
     }
 
     async generateJwtToken(user: UserServiceModel) {
-        return jwt.sign({ id: user._id }, jwtConfigs.jwtSecret, jwtConfigs.options);
+        if (!user.id) {
+            throw new AppException('user does not have id');
+        }
+        return jwt.sign({ id: user.id }, jwtConfigs.jwtSecret, jwtConfigs.options);
     }
 
     /**

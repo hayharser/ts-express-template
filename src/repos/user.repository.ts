@@ -1,12 +1,15 @@
 import { Service } from 'typedi';
-import { FederatedAccountProviders, User, UserModel } from '../models/user.model';
-import { logger } from '../providers/logger';
 import { Types } from 'mongoose';
+import debug from 'debug';
+
+import { FederatedAccountProviders, User, UserModel } from '../models/user.model';
+
+const appDebugger = debug('app:repository');
 
 @Service()
 export class UserRepository {
     constructor() {
-        logger.info('UserRepository->constructor');
+        appDebugger('UserRepository->constructor');
     }
 
     findById(id: string) {
