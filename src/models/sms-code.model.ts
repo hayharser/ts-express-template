@@ -1,27 +1,37 @@
-import mongoose, { Document, Model, Schema } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
+import { UserApiModel } from './api/user.api.model';
 
 const MAX_ATTEMPTS = 1000;
 
 export interface SmsCode {
-    _id: any | mongoose.Types.ObjectId;
-    userId: number;
-    deviceId: number;
+    _id?: mongoose.Types.ObjectId;
+    userId: mongoose.Types.ObjectId;
+    deviceId: mongoose.Types.ObjectId;
     code: string;
     createdAt: Date;
 }
 
-export interface SmsCodeDoc extends Document, SmsCode {}
+interface SmsCodeMethods {
+    toApiModel(): UserApiModel;
 
-export interface SmsCodeMongoModel extends Model<SmsCodeDoc> {
     generateCode(
         userId: mongoose.Types.ObjectId,
         deviceId: mongoose.Types.ObjectId
-    ): Promise<SmsCodeDoc>;
+    ): Promise<SmsCode>;
 
-    findByCode(code: string): Promise<SmsCodeDoc>;
+    findByCode(code: string): Promise<SmsCode>;
 }
 
-const SmsCodeSchema = new Schema(
+export interface SmsCodeMongoModel extends Model<SmsCode, object, SmsCodeMethods> {
+    generateCode(
+        userId: mongoose.Types.ObjectId,
+        deviceId: mongoose.Types.ObjectId
+    ): Promise<SmsCode>;
+
+    findByCode(code: string): Promise<SmsCode>;
+}
+
+const SmsCodeSchema = new Schema<SmsCode, SmsCodeMongoModel, SmsCodeMethods>(
     {
         userId: { type: Schema.Types.ObjectId, ref: 'UserModel', required: true },
         deviceId: { type: Schema.Types.ObjectId, ref: 'DeviceModel', required: true },
@@ -40,7 +50,7 @@ SmsCodeSchema.statics.generateCode = async function (
     deviceId: mongoose.Types.ObjectId
 ) {
     let code = 0;
-    let smsCode: SmsCodeDoc;
+    let smsCode: SmsCode;
     let codeString;
     let attempts = 0;
     // eslint-disable-next-line no-loops/no-loops
@@ -59,10 +69,10 @@ SmsCodeSchema.statics.generateCode = async function (
     return this.create(smsCodeData);
 };
 
-SmsCodeSchema.statics.findByCode = function (code: string): Promise<SmsCode> {
-    return this.findOne({ code });
+SmsCodeSchema.statics.findByCode = function (code: string) {
+    return this.findOne({ code }).exec();
 };
-export const SmsCodeModel = mongoose.model<SmsCodeDoc, SmsCodeMongoModel>(
+export const SmsCodeModel = mongoose.model<SmsCode, SmsCodeMongoModel>(
     'SmsCodeModel',
     SmsCodeSchema
 );

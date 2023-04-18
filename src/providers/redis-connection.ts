@@ -25,7 +25,7 @@ export class RedisConnection {
     }
 
     async connect() {
-        await this.client.connect();
+        this.client.connect();
         this.client.select(this.dbNumber);
     }
 }
