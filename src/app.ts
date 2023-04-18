@@ -4,13 +4,13 @@ import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
+import passport from 'passport';
+
 import { ControllerInterface } from './controllers/controller.interface';
 import { errorHandlerMiddleware } from './middeware/error-handler.middleware';
-
 import { logger } from './providers/logger';
 import { corsOptions } from './config/cors.config';
 import { morganFormat } from './config/morgan.configs';
-import passport from 'passport';
 import {
     PassportFacebookByTokenStrategy,
     PassportFacebookStrategy,

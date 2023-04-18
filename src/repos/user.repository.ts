@@ -1,13 +1,17 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { Types } from 'mongoose';
 import debug from 'debug';
+import { RedisClientType } from 'redis';
 
 import { FederatedAccountProviders, User, UserModel } from '../models/user.model';
+import { CACHE_REDIS_TOKEN } from '../providers/redis-connection';
 
 const appDebugger = debug('app:repository');
 
 @Service()
 export class UserRepository {
+    @Inject(CACHE_REDIS_TOKEN) private readonly redisCacheClient: RedisClientType;
+
     constructor() {
         appDebugger('UserRepository->constructor');
     }

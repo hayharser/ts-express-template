@@ -9,13 +9,12 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 import { App } from './app';
-import { MongoDbProvider } from './providers/mongo-db.provider';
+import './providers/mongo-db.provider';
+import './providers/redis-connection';
 
 import { AuthController, BrandController, UserController } from './controllers/v1';
-import { mongoConfigs } from './config/mongo.configs';
-import { redisConfigs } from './config/redis.configs';
+
 import { serverConfig } from './config/server.configs';
-import { RedisProvider } from './providers/redis.provider';
 
 const appDebugger = debug('app:server');
 
@@ -34,30 +33,20 @@ const swaggerOptions = {
 };
 app.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
 
-const mongoDbProvider = new MongoDbProvider(mongoConfigs);
-const redisProvider = new RedisProvider(redisConfigs.url, 'cache');
+http.createServer(app.app).listen(serverConfig.port, () => {
+    appDebugger(`server started at port: ${serverConfig.port}`);
+});
 
-Promise.all([redisProvider.connect(), mongoDbProvider.connect()])
-    .then(() => {
-        appDebugger('connected to mongodb');
-    })
-    .then(() => {
-        // create http server
-        http.createServer(app.app).listen(serverConfig.port, () => {
-            appDebugger(`server started at port: ${serverConfig.port}`);
-        });
-
-        https
-            .createServer(
-                // Provide the private and public key to the server by reading each
-                // file's content with the readFileSync() method.
-                {
-                    key: fs.readFileSync('./key.pem'),
-                    cert: fs.readFileSync('./cert.pem')
-                },
-                app.app
-            )
-            .listen(443, () => {
-                appDebugger('server started at port 443');
-            });
+https
+    .createServer(
+        // Provide the private and public key to the server by reading each
+        // file's content with the readFileSync() method.
+        {
+            key: fs.readFileSync('./key.pem'),
+            cert: fs.readFileSync('./cert.pem')
+        },
+        app.app
+    )
+    .listen(443, () => {
+        appDebugger('server started at port 443');
     });

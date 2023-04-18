@@ -2,6 +2,7 @@ import { Inject, Service } from 'typedi';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import debug from 'debug';
+import { RedisClientType } from 'redis';
 
 import { UserRepository } from '../repos/user.repository';
 import { UserServiceModel } from './models/user.service.model';
@@ -9,15 +10,17 @@ import { ILogger, Logger } from '../providers/logger';
 import { AppException } from '../exceptions/app.exception';
 import { jwtConfigs } from '../config/jwt.configs';
 import { User } from '../models/user.model';
+import { CACHE_REDIS_TOKEN } from '../providers/redis-connection';
 
 const appDebugger = debug('app:service');
 
 @Service()
 export class UserService {
-    constructor(
-        @Inject() private readonly userRepo: UserRepository,
-        @Logger() private readonly logger: ILogger
-    ) {
+    @Inject() private readonly userRepo: UserRepository;
+    @Logger() private readonly logger: ILogger;
+    @Inject(CACHE_REDIS_TOKEN) private readonly redisCacheClient: RedisClientType;
+
+    constructor() {
         appDebugger('UserService->constructor');
     }
 
@@ -87,6 +90,8 @@ export class UserService {
         user.password = await this.hashPassword(userModel.password, salt);
 
         userDoc = await this.userRepo.createUser(user);
+
+        this.redisCacheClient.set(`user:${userDoc._id.toString()}`, user.email);
         return userDoc.toApiModel();
     }
 

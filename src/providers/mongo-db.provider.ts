@@ -1,22 +1,8 @@
 import * as mongoose from 'mongoose';
-import { logger } from './logger';
 
-interface MongoOptions {
-    host: string;
-    user: string;
-    password: string;
-    db: string;
-}
+import { mongoConfigs } from '../config/mongo.configs';
 
-export class MongoDbProvider {
-    url: string;
+const { user, password, host, db } = mongoConfigs;
+const url = `mongodb://${user}:${password}@${host}/${db}?authSource=admin`;
 
-    constructor({ password, user, host, db }: MongoOptions) {
-        this.url = `mongodb://${user}:${password}@${host}/${db}?authSource=admin`;
-        logger.info(this.url);
-    }
-
-    connect() {
-        return mongoose.connect(this.url);
-    }
-}
+mongoose.connect(url);

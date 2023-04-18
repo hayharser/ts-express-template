@@ -1,11 +1,14 @@
 import '../src/config/dotenv';
-import { RedisProvider } from '../src/providers/redis.provider';
+import { RedisClientName, RedisConnection } from '../src/providers/redis-connection';
 import { redisConfigs } from '../src/config/redis.configs';
 
-const redisProvider = new RedisProvider(redisConfigs.url, 'cache');
+const redisProvider = new RedisConnection(redisConfigs.url, RedisClientName.CACHE, 1);
+redisProvider.connect();
+
+const redisClient = redisProvider.client;
 
 async function run() {
-    await redisProvider.connect();
+    redisClient.set('wasd', 'erfd');
 }
 
 run();
