@@ -9,7 +9,7 @@ export class BrandController extends BaseController {
     }
 
     initRouters(): void {
-        this.router.get('/', passport.authenticate('JWT'), this.getAll);
+        this.router.get('/', passport.authenticate('jwt'), this.getAll);
     }
 
     /**

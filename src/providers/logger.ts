@@ -1,5 +1,5 @@
 import Container from 'typedi';
-import { createLogger, format, Logger as WLogger, transports } from 'winston';
+import { createLogger, format, transports } from 'winston';
 import 'winston-daily-rotate-file';
 
 const LEVEL = Symbol.for('level');
@@ -64,7 +64,7 @@ if (process.env.NODE_ENV !== 'production') {
     );
 }
 
-export function Logger() {
+export function InjectLogger() {
     return function (object: any, propertyName: string, index?: number) {
         Container.registerHandler({
             object,
@@ -74,5 +74,3 @@ export function Logger() {
         });
     };
 }
-
-export type ILogger = WLogger;

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import './config/dotenv';
-import http from 'http';
+import * as http from 'http';
 import * as https from 'https';
 import * as fs from 'fs';
 import Container from 'typedi';

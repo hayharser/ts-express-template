@@ -3,21 +3,22 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import debug from 'debug';
 import { RedisClientType } from 'redis';
+import { Logger } from 'winston';
 
 import { UserRepository } from '../repos/user.repository';
 import { UserServiceModel } from './models/user.service.model';
-import { ILogger, Logger } from '../providers/logger';
 import { AppException } from '../exceptions/app.exception';
 import { jwtConfigs } from '../config/jwt.configs';
 import { User } from '../models/user.model';
 import { CACHE_REDIS_TOKEN } from '../providers/redis-connection';
+import { InjectLogger } from '../providers/logger';
 
 const appDebugger = debug('app:service');
 
 @Service()
 export class UserService {
     @Inject() private readonly userRepo: UserRepository;
-    @Logger() private readonly logger: ILogger;
+    @InjectLogger() private readonly logger: Logger;
     @Inject(CACHE_REDIS_TOKEN) private readonly redisCacheClient: RedisClientType;
 
     constructor() {
